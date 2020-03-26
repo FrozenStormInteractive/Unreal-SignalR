@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1",
+	"FriendlyName": "SignalR",
+	"Description": "SignalR Client  for Unreal Engine 4",
+	"Category": "Online Platform",
+	"CreatedBy": "FrozenStorm Interactive",
+	"CreatedByURL": "https://github.com/FrozenStormInteractive",
+	"DocsURL": "https://github.com/FrozenStormInteractive/Unreal-SignalR",
+	"MarketplaceURL": "",
+	"SupportURL": "https://github.com/FrozenStormInteractive/Unreal-SignalR/issues",
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "SignalR",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
