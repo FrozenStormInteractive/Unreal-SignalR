@@ -4,7 +4,7 @@
 
 #include "HubConnection.h"
 #include "Modules/ModuleManager.h"
-#include  "IHubConnection.h"
+#include "IHubConnection.h"
 #include "WebSocketsModule.h"
 
 IMPLEMENT_MODULE(FSignalRModule, SignalR);

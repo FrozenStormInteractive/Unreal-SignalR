@@ -1,7 +1,7 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "CallbackManager.h"
-#include "ScopeLock.h"
+#include "Misc/ScopeLock.h"
 
 FCallbackManager::FCallbackManager()
 {

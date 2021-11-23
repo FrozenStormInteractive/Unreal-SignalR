@@ -2,14 +2,14 @@
 
 #include "Connection.h"
 #include "HttpModule.h"
-#include "IHttpRequest.h"
+#include "Interfaces/IHttpRequest.h"
 #include "WebSocketsModule.h"
 #include "SignalRModule.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Interfaces/IHttpRequest.h"
-#include "JsonObject.h"
-#include "JsonReader.h"
-#include "JsonSerializer.h"
+#include "Dom/JsonObject.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
 
 FConnection::FConnection(const FString& InHost, const TMap<FString, FString>& InHeaders):
     Host(InHost),

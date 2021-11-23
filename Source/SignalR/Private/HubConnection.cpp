@@ -8,7 +8,7 @@
 #include "WebSocketsModule.h"
 #include "Connection.h"
 #include "HandshakeProtocol.h"
-#include "JsonSerializer.h"
+#include "Serialization/JsonSerializer.h"
 
 FHubConnection::FHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders):
     FTickableGameObject(),

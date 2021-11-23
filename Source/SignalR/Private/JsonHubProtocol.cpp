@@ -1,10 +1,8 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "JsonHubProtocol.h"
-
-
-#include "JsonSerializer.h"
-#include "JsonWriter.h"
+#include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
 #include "SignalRModule.h"
 
 FName FJsonHubProtocol::Name() const

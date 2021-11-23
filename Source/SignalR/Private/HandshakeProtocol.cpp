@@ -3,7 +3,7 @@
 #include "HandshakeProtocol.h"
 #include "IHubProtocol.h"
 #include "JsonHubProtocol.h"
-#include "JsonSerializer.h"
+#include "Serialization/JsonSerializer.h"
 #include "SignalRModule.h"
 
 FString FHandshakeProtocol::CreateHandshakeMessage(TSharedPtr<IHubProtocol> InProtocol)

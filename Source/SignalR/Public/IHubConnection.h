@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "JsonValue.h"
+#include "Dom/JsonValue.h"
 #include "SignalRValue.h"
 
 DECLARE_DELEGATE_OneParam(FOnMethodInvocation, TSharedPtr<FSignalRValue>)
