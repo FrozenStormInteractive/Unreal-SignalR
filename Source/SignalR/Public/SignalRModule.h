@@ -22,7 +22,7 @@ public:
 
     /**
      *
-     * @param url 
+     * @param url
      * @return An IHubConnection instance
      */
     SIGNALR_API TSharedPtr<IHubConnection> CreateHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders = TMap<FString, FString>());
@@ -32,7 +32,7 @@ private:
     virtual void StartupModule() override;
 
     virtual void ShutdownModule() override;
-	
+
 	virtual bool SupportsDynamicReloading() override
 	{
 		return false;

@@ -40,7 +40,7 @@ FString FJsonHubProtocol::ConvertMessage(TSharedPtr<FSignalRValue> InValue) cons
         break;
     }
     case EJson::String:
-    { 
+    {
         Out = InValue->AsString();
         break;
     }
@@ -59,7 +59,7 @@ FString FJsonHubProtocol::ConvertMessage(TSharedPtr<FSignalRValue> InValue) cons
         break;
     }
     }
-    
+
     return Out;
 }
 

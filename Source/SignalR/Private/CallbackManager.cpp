@@ -15,10 +15,10 @@ FCallbackManager::~FCallbackManager()
 TTuple<FName, FOnMethodCompletion&> FCallbackManager::RegisterCallback()
 {
     FName Id = GenerateCallbackId();
-    
+
     FScopeLock Lock(&CallbacksLock);
     FOnMethodCompletion& qssq = Callbacks.Add(Id);
-    
+
     return TTuple<FName, FOnMethodCompletion&>(Id, qssq);
 }
 

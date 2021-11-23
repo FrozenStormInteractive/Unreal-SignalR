@@ -22,7 +22,7 @@ struct FNegotiationResponse
 public:
 	UPROPERTY()
 	int32 NegotiateVersion;
-	
+
 	UPROPERTY()
 	FString ConnectionId;
 

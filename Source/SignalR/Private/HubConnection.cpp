@@ -269,7 +269,7 @@ void FHubConnection::InvokeHubMethod(FName MethodName, TSharedPtr<FSignalRValue>
             { "arguments", InArguments }
         }
     };
-	
+
     if (CallbackId.IsValid() && !CallbackId.IsNone())
     {
         Obj->Values["invocationId"] = MakeShared<FJsonValueString>(CallbackId.ToString());
