@@ -73,7 +73,7 @@ IWebSocket::FWebSocketMessageEvent& FConnection::OnMessage()
 
 void FConnection::Negotiate()
 {
-    TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+    TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 
     HttpRequest->SetVerb(TEXT("POST"));
     HttpRequest->OnProcessRequestComplete().BindRaw(this, &FConnection::OnNegotiateResponse);
