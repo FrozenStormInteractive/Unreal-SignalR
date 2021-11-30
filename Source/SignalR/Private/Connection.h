@@ -28,7 +28,7 @@
 #include "IWebSocket.h"
 #include "Interfaces/IHttpRequest.h"
 
-class SIGNALR_API FConnection
+class SIGNALR_API FConnection : public TSharedFromThis<FConnection>
 {
 public:
     FConnection(const FString& InHost, const TMap<FString, FString>& InHeaders);
@@ -65,4 +65,6 @@ private:
 
     FString ConnectionToken;
     FString ConnectionId;
+
+    static FString ConvertToWebsocketUrl(const FString& Url);
 };

@@ -85,4 +85,6 @@ private:
     bool bHandshakeReceived = false;
 
     float TickTimeCounter = 0;
+
+    TArray<FString> WaitingCalls;
 };

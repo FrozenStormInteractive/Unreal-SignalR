@@ -45,19 +45,16 @@ FString FJsonHubProtocol::ConvertMessage(TSharedPtr<FSignalRValue> InValue) cons
     {
     case EJson::Null:
     {
-        // number
         Out = TEXT("null");
         break;
     }
     case EJson::Boolean:
     {
-        // number
         Out = InValue->AsBool() ? TEXT("true") : TEXT("false");
         break;
     }
     case EJson::Number:
     {
-        // number
         Out = FString::SanitizeFloat(InValue->AsNumber());
         break;
     }
@@ -71,13 +68,16 @@ FString FJsonHubProtocol::ConvertMessage(TSharedPtr<FSignalRValue> InValue) cons
         TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&Out);
         if(FJsonSerializer::Serialize(InValue->AsObject().ToSharedRef(), JsonWriter))
         {
-            Out.Empty();
             break;
+        }
+        else
+        {
+            UE_LOG(LogSignalR, Error, TEXT("Cannot convert JSON object to string"));
         }
     }
     default:
     {
-        UE_LOG(LogSignalR, Error, TEXT("Cannot convert JSON value to string."));
+        UE_LOG(LogSignalR, Error, TEXT("Cannot convert JSON value to string"));
         break;
     }
     }

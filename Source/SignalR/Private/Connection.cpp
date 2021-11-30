@@ -98,8 +98,8 @@ void FConnection::Negotiate()
     TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 
     HttpRequest->SetVerb(TEXT("POST"));
-    HttpRequest->OnProcessRequestComplete().BindRaw(this, &FConnection::OnNegotiateResponse);
-    HttpRequest->SetURL(TEXT("http://") + Host + TEXT("/negotiate?negotiateVersion=1"));
+    HttpRequest->OnProcessRequestComplete().BindSP(AsShared(), &FConnection::OnNegotiateResponse);
+    HttpRequest->SetURL(Host + TEXT("/negotiate?negotiateVersion=1"));
     HttpRequest->ProcessRequest();
 }
 
@@ -186,23 +186,64 @@ void FConnection::OnNegotiateResponse(FHttpRequestPtr InRequest, FHttpResponsePt
 
 void FConnection::StartWebSocket()
 {
-    Connection = FWebSocketsModule::Get().CreateWebSocket(TEXT("ws://") + Host, FString(), Headers);
+    const FString COnver = ConvertToWebsocketUrl(Host);
+    Connection = FWebSocketsModule::Get().CreateWebSocket(COnver, FString(), Headers);
 
     if(Connection.IsValid())
     {
-        Connection->OnConnected().AddLambda([this]() { OnConnectedEvent.Broadcast(); });
-        Connection->OnConnectionError().AddLambda([this](const FString& ErrString)
+        Connection->OnConnected().AddLambda([Self = TWeakPtr<FConnection>(AsShared())]()
+        {
+            if (TSharedPtr<FConnection> SharedSelf = Self.Pin())
+            {
+                SharedSelf->OnConnectedEvent.Broadcast();
+            }
+        });
+        Connection->OnConnectionError().AddLambda([Self = TWeakPtr<FConnection>(AsShared())](const FString& ErrString)
         {
             UE_LOG(LogSignalR, Warning, TEXT("Websocket err: %s"), *ErrString);
-            OnConnectionErrorEvent.Broadcast(ErrString);
+
+            if (TSharedPtr<FConnection> SharedSelf = Self.Pin())
+            {
+                SharedSelf->OnConnectionErrorEvent.Broadcast(ErrString);
+            }
         });
-        Connection->OnClosed().AddLambda([this](int32 StatusCode, const FString& Reason, bool bWasClean) { OnClosedEvent.Broadcast(StatusCode, Reason, bWasClean); });
-        Connection->OnMessage().AddLambda([this](const FString& MessageString) { OnMessageEvent.Broadcast(MessageString); });
+        Connection->OnClosed().AddLambda([Self = TWeakPtr<FConnection>(AsShared())](int32 StatusCode, const FString& Reason, bool bWasClean)
+        {
+            if (TSharedPtr<FConnection> SharedSelf = Self.Pin())
+            {
+                SharedSelf->OnClosedEvent.Broadcast(StatusCode, Reason, bWasClean);
+            }
+        });
+        Connection->OnMessage().AddLambda([Self = TWeakPtr<FConnection>(AsShared())](const FString& MessageString)
+        {
+            if (TSharedPtr<FConnection> SharedSelf = Self.Pin())
+            {
+                SharedSelf->OnMessageEvent.Broadcast(MessageString);
+            }
+        });
 
         Connection->Connect();
     }
     else
     {
         UE_LOG(LogSignalR, Error, TEXT("Cannot start websocket."));
+    }
+}
+
+FString FConnection::ConvertToWebsocketUrl(const FString& Url)
+{
+    const FString TrimmedUrl = Url.TrimStartAndEnd();
+
+    if (TrimmedUrl.StartsWith(TEXT("https://")))
+    {
+        return TEXT("wss") + TrimmedUrl.RightChop(5);
+    }
+    else if (TrimmedUrl.StartsWith(TEXT("http://")))
+    {
+        return TEXT("ws") + TrimmedUrl.RightChop(4);
+    }
+    else
+    {
+        return Url;
     }
 }

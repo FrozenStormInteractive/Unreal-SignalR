@@ -37,7 +37,7 @@ FHubConnection::FHubConnection(const FString& InUrl, const TMap<FString, FString
     Host(InUrl),
     HubProtocol(MakeShared<FJsonHubProtocol>())
 {
-    Connection = MakeShared<FConnection>(InUrl, InHeaders);
+    Connection = MakeShared<FConnection>(Host, InHeaders);
 
     Connection->OnConnected().AddRaw(this, &FHubConnection::OnConnectionStarted);
     Connection->OnMessage().AddRaw(this, &FHubConnection::ProcessMessage);
@@ -142,6 +142,11 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
             {
                 bHandshakeReceived = true;
                 MessageStr = Res.Get<1>();
+
+                for (const FString& Call : WaitingCalls)
+                {
+                    Connection->Send(Call);
+                }
             }
 		}
         else
@@ -269,16 +274,20 @@ void FHubConnection::OnConnectionClosed(int32 StatusCode, const FString& Reason,
 
 void FHubConnection::Ping()
 {
-    TSharedPtr<FJsonObject> Obj = MakeShared<FJsonObject>();
+    if (bHandshakeReceived)
+    {
+        TSharedPtr<FJsonObject> Obj = MakeShared<FJsonObject>();
         Obj->Values = {
-        {
-            { "type", MakeShared<FJsonValueNumber>(StaticCast<double>(ESignalRMessageType::Ping)) },
-        }
-    };
-    const TSharedPtr<FJsonValueObject> ObjValueObj = MakeShared<FJsonValueObject>(Obj);
-    const auto Message = HubProtocol->ConvertMessage(ObjValueObj);
-    Connection->Send(Message);
-    UE_LOG(LogSignalR, VeryVerbose, TEXT("Ping sent"));
+            {
+                { "type", MakeShared<FJsonValueNumber>(StaticCast<double>(ESignalRMessageType::Ping)) },
+            }
+        };
+        const TSharedPtr<FJsonValueObject> ObjValueObj = MakeShared<FJsonValueObject>(Obj);
+        const auto Message = HubProtocol->ConvertMessage(ObjValueObj);
+
+        Connection->Send(Message);
+        UE_LOG(LogSignalR, VeryVerbose, TEXT("Ping sent"));
+    }
 }
 
 void FHubConnection::InvokeHubMethod(FName MethodName, TSharedPtr<FSignalRValue> InArguments, FName CallbackId)
@@ -300,5 +309,12 @@ void FHubConnection::InvokeHubMethod(FName MethodName, TSharedPtr<FSignalRValue>
     const TSharedPtr<FJsonValueObject> ObjValueObj = MakeShared<FJsonValueObject>(Obj);
     const auto Message = HubProtocol->ConvertMessage(ObjValueObj);
 
-    Connection->Send(Message);
+    if (bHandshakeReceived)
+    {
+        Connection->Send(Message);
+    }
+    else
+    {
+        WaitingCalls.Add(Message);
+    }
 }
