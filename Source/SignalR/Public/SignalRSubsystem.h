@@ -22,45 +22,25 @@
  * SOFTWARE.
  */
 
-#include "SignalRModule.h"
+#pragma once
 
-#include "HubConnection.h"
-#include "Modules/ModuleManager.h"
-#include "IHubConnection.h"
-#include "WebSocketsModule.h"
-#include "SignalRSubsystem.h"
+#include "CoreMinimal.h"
+#include "Subsystems/EngineSubsystem.h"
+#include "SignalRSubsystem.generated.h"
 
-IMPLEMENT_MODULE(FSignalRModule, SignalR);
+class IHubConnection;
 
-DEFINE_LOG_CATEGORY(LogSignalR);
-
-FSignalRModule* FSignalRModule::Singleton = nullptr;
-
-FSignalRModule& FSignalRModule::Get()
+UCLASS()
+class SIGNALR_API USignalRSubsystem : public UEngineSubsystem
 {
-    if (nullptr == Singleton)
-    {
-        check(IsInGameThread());
-        FModuleManager::LoadModuleChecked<FSignalRModule>("SignalR");
-    }
-    check(Singleton);
-    return *Singleton;
-}
+    GENERATED_BODY()
+public:
 
-TSharedPtr<IHubConnection> FSignalRModule::CreateHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders)
-{
-    check(bInitialized);
-    return GEngine->GetEngineSubsystem<USignalRSubsystem>()->CreateHubConnection(InUrl, InHeaders);
-}
-
-void FSignalRModule::StartupModule()
-{
-    Singleton = this;
-    bInitialized = true;
-    FModuleManager::LoadModuleChecked<FWebSocketsModule>("WebSockets");
-}
-
-void FSignalRModule::ShutdownModule()
-{
-    bInitialized = false;
-}
+    /**
+     * Create a new hub connection.
+     * 
+     * @param url
+     * @return An IHubConnection instance
+     */
+    TSharedPtr<IHubConnection> CreateHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders = TMap<FString, FString>());
+};
