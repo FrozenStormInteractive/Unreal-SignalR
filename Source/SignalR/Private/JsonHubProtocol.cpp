@@ -82,6 +82,11 @@ FString FJsonHubProtocol::ConvertMessage(TSharedPtr<FSignalRValue> InValue) cons
     }
     }
 
+    if (!Out.IsEmpty())
+    {
+        Out += RecordSeparator;
+    }
+
     return Out;
 }
 
