@@ -118,7 +118,7 @@ void FConnection::OnNegotiateResponse(FHttpRequestPtr InRequest, FHttpResponsePt
     {
         if(JsonObject->HasField(TEXT("error")))
         {
-            // TODO: error
+            // TODO
         }
         else
         {

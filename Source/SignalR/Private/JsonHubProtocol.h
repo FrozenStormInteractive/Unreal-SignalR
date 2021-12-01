@@ -35,9 +35,9 @@ public:
     virtual FName Name() const override;
     virtual int Version() const override;
 
-    virtual FString ConvertMessage(TSharedPtr<FSignalRValue>) const override;
-    virtual TArray<TSharedPtr<FSignalRValue>> ParseMessages(const FString&) const override;
+    virtual FString SerializeMessage(const FHubMessage* InMessage) const override;
+    virtual TArray<TSharedPtr<FHubMessage>> ParseMessages(const FString&) const override;
 
-protected:
-
+private:
+    TSharedPtr<FHubMessage> ParseMessage(const FString&) const;
 };

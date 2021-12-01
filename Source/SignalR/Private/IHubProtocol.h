@@ -25,7 +25,86 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MessageType.h"
 #include "SignalRValue.h"
+
+struct FHubMessage
+{
+protected:
+    FHubMessage(ESignalRMessageType InMessageType) :
+        MessageType(InMessageType)
+    {
+    }
+
+public:
+    virtual ~FHubMessage() {}
+
+    const ESignalRMessageType MessageType;
+};
+
+ struct FBaseInvocationMessage : FHubMessage
+{
+ protected:
+     FBaseInvocationMessage(const FString& InInvocationId, ESignalRMessageType InMessageType): FHubMessage(InMessageType),
+         InvocationId(InInvocationId)
+     {
+     }
+
+ public:
+     const FString InvocationId;
+};
+
+struct FInvocationMessage : FBaseInvocationMessage
+{
+    FInvocationMessage(const FString& InInvocationId, const FString& InTarget, const TArray<FSignalRValue>& InArgs, const TArray<FString>& InStreamIds = TArray<FString>()) :
+        FBaseInvocationMessage(InInvocationId, ESignalRMessageType::Invocation),
+        Target(InTarget),
+        Arguments(InArgs),
+        StreamIds(InStreamIds)
+    {
+    }
+
+    FInvocationMessage(FString&& InInvocationId, FString&& InTarget, TArray<FSignalRValue>&& InArgs, TArray<FString>&& InStreamIds = TArray<FString>()) :
+        FBaseInvocationMessage(InInvocationId, ESignalRMessageType::Invocation),
+        Target(InTarget),
+        Arguments(InArgs),
+        StreamIds(InStreamIds)
+    {
+    }
+
+    FString Target;
+    TArray<FSignalRValue> Arguments;
+    TArray<FString> StreamIds;
+};
+
+struct FCompletionMessage : FBaseInvocationMessage
+{
+    FCompletionMessage(const FString& InInvocationId, const FString& InError, const FSignalRValue& InResult, bool InHasResult):
+        FBaseInvocationMessage(InInvocationId, ESignalRMessageType::Completion),
+        Error(InError),
+        HasResult(InHasResult),
+        Result(InResult)
+    { }
+
+    FCompletionMessage(FString&& InInvocationId, FString&& InError, FSignalRValue&& InResult, bool InHasResult) :
+        FBaseInvocationMessage(InInvocationId, ESignalRMessageType::Completion),
+        Error(InError),
+        HasResult(InHasResult),
+        Result(InResult)
+    {
+    }
+
+    FString Error;
+    bool HasResult;
+    FSignalRValue Result;
+};
+
+struct FPingMessage : FHubMessage
+{
+    FPingMessage() : FHubMessage(ESignalRMessageType::Ping)
+    {
+    }
+};
 
 class SIGNALR_API IHubProtocol
 {
@@ -35,6 +114,6 @@ public:
     virtual FName Name() const = 0;
     virtual int Version() const = 0;
 
-    virtual FString ConvertMessage(TSharedPtr<FSignalRValue>) const = 0;
-    virtual TArray<TSharedPtr<FSignalRValue>> ParseMessages(const FString&) const = 0;
+    virtual FString SerializeMessage(const FHubMessage*) const = 0;
+    virtual TArray<TSharedPtr<FHubMessage>> ParseMessages(const FString&) const = 0;
 };

@@ -25,11 +25,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Dom/JsonValue.h"
 #include "SignalRValue.h"
 
-DECLARE_DELEGATE_OneParam(FOnMethodInvocation, TSharedPtr<FSignalRValue>)
-DECLARE_DELEGATE_OneParam(FOnMethodCompletion, TSharedPtr<FSignalRValue>)
+DECLARE_DELEGATE_OneParam(FOnMethodInvocation, const TArray<FSignalRValue>&)
+DECLARE_DELEGATE_OneParam(FOnMethodCompletion, const FSignalRValue&)
 
 typedef TFunction<void(TSharedPtr<FSignalRValue>)> FMethodInvocationHandler;
 typedef TFunction<void(TSharedPtr<FSignalRValue>)> FMethodInvocationCallback;
@@ -39,9 +38,23 @@ class SIGNALR_API IHubConnection : public TSharedFromThis<IHubConnection>
 public:
     virtual FOnMethodInvocation& On(FName EventName) = 0;
 
-    virtual FOnMethodCompletion& Invoke(FName EventName, TSharedPtr<FSignalRValue> InArguments = nullptr) = 0;
+    virtual FOnMethodCompletion& Invoke(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;
 
-    virtual void Send(FName EventName, TSharedPtr<FSignalRValue> InArguments = nullptr) = 0;
+    template <typename... ArgTypes>
+    FORCEINLINE FOnMethodCompletion& Invoke(FName EventName, ArgTypes... Arguments)
+    {
+        static_assert(TAnd<TIsConstructible<FSignalRValue, ArgTypes>...>::Value, "Invalid argument type passed to IHubConnection::Invoke");
+        return Invoke(EventName, TArray<FSignalRValue> { MoveTemp(Arguments)... });
+    }
+
+    virtual void Send(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;
+
+    template <typename... ArgTypes>
+    FORCEINLINE void Send(FName EventName, ArgTypes... Arguments)
+    {
+        static_assert(TAnd<TIsConstructible<FSignalRValue, ArgTypes>...>::Value, "Invalid argument type passed to IHubConnection::Send");
+        Send(EventName, TArray<FSignalRValue> { MoveTemp(Arguments)... });
+    }
 
 protected:
 

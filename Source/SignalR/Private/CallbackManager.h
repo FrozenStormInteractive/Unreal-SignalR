@@ -34,9 +34,9 @@ public:
     ~FCallbackManager();
 
     TTuple<FName, FOnMethodCompletion&> RegisterCallback();
-    bool InvokeCallback(FName InCallbackId, TSharedPtr<FSignalRValue> InArguments, bool InRemoveCallback);
+    bool InvokeCallback(FName InCallbackId, const FSignalRValue& InArguments, bool InRemoveCallback);
     bool RemoveCallback(FName InCallbackId);
-    void Clear(TSharedPtr<FSignalRValue> InArguments);
+    void Clear(const FString& ErrorMessage);
 
 private:
     FName GenerateCallbackId();

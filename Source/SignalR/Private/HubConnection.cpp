@@ -73,31 +73,15 @@ FOnMethodInvocation& FHubConnection::On(FName InEventName)
     return InvocationHandlers.Add(InEventName);
 }
 
-FOnMethodCompletion& FHubConnection::Invoke(FName InEventName, TSharedPtr<FSignalRValue> InArguments)
+FOnMethodCompletion& FHubConnection::Invoke(FName InEventName, const TArray<FSignalRValue>& InArguments)
 {
-    static FOnMethodCompletion BadDelegate;
-
-    if(InArguments->Type != EJson::Array)
-    {
-        UE_LOG(LogSignalR, Error, TEXT("arguments should be an array"));
-        return BadDelegate;
-    }
-
     TTuple<FName, FOnMethodCompletion&> Callback = CallbackManager.RegisterCallback();
-
     InvokeHubMethod(InEventName, InArguments, Callback.Key);
-
     return Callback.Value;
 }
 
-void FHubConnection::Send(FName InEventName, TSharedPtr<FSignalRValue> InArguments)
+void FHubConnection::Send(FName InEventName, const TArray<FSignalRValue>& InArguments)
 {
-    if (InArguments->Type != EJson::Array)
-    {
-        UE_LOG(LogSignalR, Error, TEXT("arguments should be an array"));
-        return;
-    }
-
     InvokeHubMethod(InEventName, InArguments, NAME_None);
 }
 
@@ -158,36 +142,18 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
 
     auto Messages = HubProtocol->ParseMessages(MessageStr);
 
-    for (const TSharedPtr<FSignalRValue> Message : Messages)
+    for (const TSharedPtr<FHubMessage> Message : Messages)
     {
-        if(Message->Type != EJson::Object)
-        {
-            UE_LOG(LogSignalR, Warning, TEXT("Unexpected response received from the server: %s"), *MessageStr);
-            return;
-        }
-
-        const TSharedPtr<FJsonObject> Obj = Message->AsObject();
-
-        switch (Obj->GetIntegerField(TEXT("type")))
+        switch (Message->MessageType)
         {
         case ESignalRMessageType::Invocation:
         {
-            FName MethodName = FName(*Obj->GetStringField(TEXT("target")));
+            TSharedPtr<FInvocationMessage> InvocationMessage = StaticCastSharedPtr<FInvocationMessage>(Message);
 
+            FName MethodName = FName(*InvocationMessage->Target);
             if(InvocationHandlers.Contains(MethodName))
             {
-                FOnMethodInvocation InvocationHandler = InvocationHandlers[MethodName];
-
-                TSharedPtr<FSignalRValue> Arguments = Obj->TryGetField(TEXT("arguments"));
-
-                if(Arguments.IsValid())
-                {
-                    InvocationHandler.ExecuteIfBound(Arguments);
-                }
-                else
-                {
-                    InvocationHandler.ExecuteIfBound(nullptr);
-                }
+                InvocationHandlers[MethodName].ExecuteIfBound(InvocationMessage->Arguments);
             }
             break;
         }
@@ -199,40 +165,18 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
             break;
         case ESignalRMessageType::Completion:
         {
-            if(Obj->HasField(TEXT("error")))
+            TSharedPtr<FCompletionMessage> CompletionMessage = StaticCastSharedPtr<FCompletionMessage>(Message);
+
+            if(!CompletionMessage->Error.IsEmpty())
             {
-                UE_LOG(LogSignalR, Error, TEXT("%s"), *Obj->GetStringField(TEXT("error")));
+                UE_LOG(LogSignalR, Error, TEXT("%s"), *CompletionMessage->Error);
             }
             else
             {
-                TSharedPtr<FJsonValue> Result = Obj->TryGetField(TEXT("result"));
-                if(Result == nullptr)
+                FName InvocationId = FName(*CompletionMessage->InvocationId);
+                if (!CallbackManager.InvokeCallback(InvocationId, CompletionMessage->Result, true))
                 {
-                    UE_LOG(LogSignalR, Warning, TEXT("result is missing"));
-                }
-                else if(Result->Type != EJson::Object)
-                {
-                    UE_LOG(LogSignalR, Warning, TEXT("Expected object"));
-                }
-                else
-                {
-                    const TSharedPtr<FJsonValue> InvocationIdVal = Result->AsObject()->TryGetField(TEXT("invocationId"));
-                    if (Result == nullptr)
-                    {
-                        UE_LOG(LogSignalR, Warning, TEXT("invocationId is missing"));
-                    }
-                    else if (InvocationIdVal->Type != EJson::String)
-                    {
-                        UE_LOG(LogSignalR, Warning, TEXT("invocationId is not a string"));
-                    }
-                    else
-                    {
-                        FName InvocationId = FName(*InvocationIdVal->AsString());
-                        if (!CallbackManager.InvokeCallback(InvocationId, Result, true))
-                        {
-                            UE_LOG(LogSignalR, Warning, TEXT("No callback found for id: %s"), *InvocationId.ToString());
-                        }
-                    }
+                    UE_LOG(LogSignalR, Warning, TEXT("No callback found for id: %s"), *InvocationId.ToString());
                 }
             }
             break;
@@ -244,6 +188,7 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
             UE_LOG(LogSignalR, VeryVerbose, TEXT("Ping received"));
             break;
         case ESignalRMessageType::Close:
+            // TODO
             break;
         default:
             break;
@@ -266,9 +211,7 @@ void FHubConnection::OnConnectionClosed(int32 StatusCode, const FString& Reason,
 {
 	if(Connection.IsValid())
 	{
-        TSharedPtr<FJsonObject> Args = MakeShared<FJsonObject>();
-        Args->Values.Add(TEXT("error"), MakeShared<FJsonValueString>(TEXT("Connection was stopped before invocation result was received.")));
-        CallbackManager.Clear(MakeShared<FJsonValueObject>(Args));
+        CallbackManager.Clear(TEXT("Connection was stopped before invocation result was received."));
 	}
 }
 
@@ -276,38 +219,24 @@ void FHubConnection::Ping()
 {
     if (bHandshakeReceived)
     {
-        TSharedPtr<FJsonObject> Obj = MakeShared<FJsonObject>();
-        Obj->Values = {
-            {
-                { "type", MakeShared<FJsonValueNumber>(StaticCast<double>(ESignalRMessageType::Ping)) },
-            }
-        };
-        const TSharedPtr<FJsonValueObject> ObjValueObj = MakeShared<FJsonValueObject>(Obj);
-        const auto Message = HubProtocol->ConvertMessage(ObjValueObj);
-
+        FPingMessage Ping;
+        const auto Message = HubProtocol->SerializeMessage(&Ping);
         Connection->Send(Message);
         UE_LOG(LogSignalR, VeryVerbose, TEXT("Ping sent"));
     }
 }
 
-void FHubConnection::InvokeHubMethod(FName MethodName, TSharedPtr<FSignalRValue> InArguments, FName CallbackId)
+void FHubConnection::InvokeHubMethod(FName MethodName, const TArray<FSignalRValue>& InArguments, FName CallbackId)
 {
-    TSharedPtr<FJsonObject> Obj = MakeShared<FJsonObject>();
-    Obj->Values = {
-        {
-            { "type", MakeShared<FJsonValueNumber>(StaticCast<double>(ESignalRMessageType::Invocation)) },
-            { "target", MakeShared<FJsonValueString>(MethodName.ToString()) },
-            { "arguments", InArguments }
-        }
-    };
-
+    FString CallbackIdStr;
     if (CallbackId.IsValid() && !CallbackId.IsNone())
     {
-        Obj->Values["invocationId"] = MakeShared<FJsonValueString>(CallbackId.ToString());
+        CallbackIdStr = CallbackId.ToString();
     }
 
-    const TSharedPtr<FJsonValueObject> ObjValueObj = MakeShared<FJsonValueObject>(Obj);
-    const auto Message = HubProtocol->ConvertMessage(ObjValueObj);
+    FInvocationMessage Invocation(CallbackIdStr, MethodName.ToString(), InArguments);
+
+    const auto Message = HubProtocol->SerializeMessage(&Invocation);
 
     if (bHandshakeReceived)
     {

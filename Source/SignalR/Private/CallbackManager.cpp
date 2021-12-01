@@ -31,7 +31,7 @@ FCallbackManager::FCallbackManager()
 
 FCallbackManager::~FCallbackManager()
 {
-    Clear(nullptr);
+    Clear(TEXT(""));
 }
 
 TTuple<FName, FOnMethodCompletion&> FCallbackManager::RegisterCallback()
@@ -44,7 +44,7 @@ TTuple<FName, FOnMethodCompletion&> FCallbackManager::RegisterCallback()
     return TTuple<FName, FOnMethodCompletion&>(Id, qssq);
 }
 
-bool FCallbackManager::InvokeCallback(FName InCallbackId, TSharedPtr<FSignalRValue> InArguments, bool InRemoveCallback)
+bool FCallbackManager::InvokeCallback(FName InCallbackId, const FSignalRValue& InArguments, bool InRemoveCallback)
 {
     FOnMethodCompletion Callback;
 
@@ -76,14 +76,14 @@ bool FCallbackManager::RemoveCallback(FName InCallbackId)
     }
 }
 
-void FCallbackManager::Clear(TSharedPtr<FSignalRValue> InArguments)
+void FCallbackManager::Clear(const FString& ErrorMessage)
 {
     {
         FScopeLock Lock(&CallbacksLock);
 
         for (auto& El : Callbacks)
         {
-            El.Value.ExecuteIfBound(InArguments);
+            El.Value.ExecuteIfBound(FSignalRValue()); // TODO send error message
         }
 
         Callbacks.Empty();

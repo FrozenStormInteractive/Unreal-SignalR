@@ -42,9 +42,9 @@ public:
 
     virtual FOnMethodInvocation& On(FName EventName) override;
 
-    virtual FOnMethodCompletion& Invoke(FName EventName, TSharedPtr<FSignalRValue> InArguments = nullptr) override;
+    virtual FOnMethodCompletion& Invoke(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
 
-    virtual void Send(FName InEventName, TSharedPtr<FSignalRValue> InArguments = nullptr) override;
+    virtual void Send(FName InEventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
 
     virtual void Tick(float DeltaTime) override;
     TStatId GetStatId() const override;
@@ -73,7 +73,7 @@ private:
     void OnConnectionClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
 
     void Ping();
-    void InvokeHubMethod(FName MethodName, TSharedPtr<FSignalRValue> InArguments, FName CallbackId);
+    void InvokeHubMethod(FName MethodName, const TArray<FSignalRValue>& InArguments, FName CallbackId);
 
     FString Host;
 
