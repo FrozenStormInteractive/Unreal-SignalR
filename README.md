@@ -1,4 +1,12 @@
-# SignalR client for Unreal Engine
+<h1 align="center">
+  <br>
+  <a href="https://github.com/FrozenStormInteractive/Unreal-SignalR">
+    <img src="Resources/Icon128.png" alt="Logo" width="150">
+   </a>
+  <br>
+  SignalR client for Unreal Engine
+  <br>
+</h1>
 
 ## Dependencies
 
