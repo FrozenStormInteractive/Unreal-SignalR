@@ -35,7 +35,7 @@ TSharedPtr<IHubConnection> Hub = GEngine->GetEngineSubsystem<USignalRSubsystem>(
 
 Bind an event which is fired when the server call it to the client.
 ```cpp
-Hub->On(TEXT("EventName")).BindLambda([](TSharedPtr<FSignalRValue> Value) {
+Hub->On(TEXT("EventName")).BindLambda([](const TArray<FSignalRValue>& Arguments) {
     ...
 });
 ```
@@ -43,25 +43,14 @@ Hub->On(TEXT("EventName")).BindLambda([](TSharedPtr<FSignalRValue> Value) {
 `Invoke` fires an event when the server has finished invoking the method (or an error occurred). In addition, the event
 can receive a result from the server method, if the server returns a result.
 ```cpp
-TArray<TSharedPtr<FJsonValue>> Arguments;
-Arguments.Add(MakeShared<FJsonValueNumber>(1));
-Arguments.Add(MakeShared<FJsonValueNumber>(1));
-Hub->Invoke(TEXT("Add"), MakeShared<FJsonValueArray>(Arguments)).BindLambda([](TSharedPtr<FSignalRValue> Result) {
-    int64 ResultNumber;
-    if (Result.TryGetNumber(ResultNumber))
-    {
-        UE_LOG(LogTemp, Warning, TEXT("The result value is: %d"), ResultNumber);
-    }
+Hub->Invoke(TEXT("Add"), 1, 1).BindLambda([](const FSignalRValue& Result) {
+    UE_LOG(LogTemp, Warning, TEXT("The result value is: %d"), Result.AsInt());
 });
 ```
 
 Unlike the `Invoke` method, the `Send` method doesn't wait for a response from the server.
 ```cpp
-TArray<TSharedPtr<FJsonValue>> Arguments;
-Arguments.Add(MakeShared<FJsonValueNumber>(1));
-Arguments.Add(MakeShared<FJsonValueNumber>(1));
-
-Hub->Send(TEXT("Add"), Arguments);
+Hub->Send(TEXT("Add"), 1, 1);
 ```
 
 ## Contributing
