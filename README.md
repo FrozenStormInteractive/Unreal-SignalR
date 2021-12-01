@@ -1,7 +1,7 @@
 <h1 align="center">
   <br>
   <a href="https://github.com/FrozenStormInteractive/Unreal-SignalR">
-    <img src="Resources/Icon128.png" alt="Logo" width="150">
+    <img src="Resources/Icon128.png" alt="Logo" width="120">
    </a>
   <br>
   SignalR client for Unreal Engine
