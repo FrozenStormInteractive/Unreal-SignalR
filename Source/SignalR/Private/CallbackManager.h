@@ -33,7 +33,7 @@ public:
     FCallbackManager();
     ~FCallbackManager();
 
-    TTuple<FName, FOnMethodCompletion&> RegisterCallback();
+    TTuple<FName, IHubConnection::FOnMethodCompletion&> RegisterCallback();
     bool InvokeCallback(FName InCallbackId, const FSignalRValue& InArguments, bool InRemoveCallback);
     bool RemoveCallback(FName InCallbackId);
     void Clear(const FString& ErrorMessage);
@@ -41,7 +41,7 @@ public:
 private:
     FName GenerateCallbackId();
 
-    TMap<FName, FOnMethodCompletion> Callbacks;
+    TMap<FName, IHubConnection::FOnMethodCompletion> Callbacks;
     FCriticalSection CallbacksLock;
 
     TAtomic<int> CurrentId;

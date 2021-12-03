@@ -27,15 +27,14 @@
 #include "CoreMinimal.h"
 #include "SignalRValue.h"
 
-DECLARE_DELEGATE_OneParam(FOnMethodInvocation, const TArray<FSignalRValue>&)
-DECLARE_DELEGATE_OneParam(FOnMethodCompletion, const FSignalRValue&)
 
-typedef TFunction<void(TSharedPtr<FSignalRValue>)> FMethodInvocationHandler;
-typedef TFunction<void(TSharedPtr<FSignalRValue>)> FMethodInvocationCallback;
 
 class SIGNALR_API IHubConnection : public TSharedFromThis<IHubConnection>
 {
 public:
+    DECLARE_DELEGATE_OneParam(FOnMethodInvocation, const TArray<FSignalRValue>&)
+    DECLARE_DELEGATE_OneParam(FOnMethodCompletion, const FSignalRValue&)
+
     virtual FOnMethodInvocation& On(FName EventName) = 0;
 
     virtual FOnMethodCompletion& Invoke(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;

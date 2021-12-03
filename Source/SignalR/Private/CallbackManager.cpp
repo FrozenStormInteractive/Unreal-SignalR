@@ -34,19 +34,19 @@ FCallbackManager::~FCallbackManager()
     Clear(TEXT(""));
 }
 
-TTuple<FName, FOnMethodCompletion&> FCallbackManager::RegisterCallback()
+TTuple<FName, IHubConnection::FOnMethodCompletion&> FCallbackManager::RegisterCallback()
 {
     FName Id = GenerateCallbackId();
 
     FScopeLock Lock(&CallbacksLock);
-    FOnMethodCompletion& qssq = Callbacks.Add(Id);
+    IHubConnection::FOnMethodCompletion& qssq = Callbacks.Add(Id);
 
-    return TTuple<FName, FOnMethodCompletion&>(Id, qssq);
+    return TTuple<FName, IHubConnection::FOnMethodCompletion&>(Id, qssq);
 }
 
 bool FCallbackManager::InvokeCallback(FName InCallbackId, const FSignalRValue& InArguments, bool InRemoveCallback)
 {
-    FOnMethodCompletion Callback;
+    IHubConnection::FOnMethodCompletion Callback;
 
     {
         FScopeLock Lock(&CallbacksLock);

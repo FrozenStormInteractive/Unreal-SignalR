@@ -54,7 +54,7 @@ FHubConnection::~FHubConnection()
 	}
 }
 
-FOnMethodInvocation& FHubConnection::On(FName InEventName)
+IHubConnection::FOnMethodInvocation& FHubConnection::On(FName InEventName)
 {
     static FOnMethodInvocation BadDelegate;
 
@@ -73,7 +73,7 @@ FOnMethodInvocation& FHubConnection::On(FName InEventName)
     return InvocationHandlers.Add(InEventName);
 }
 
-FOnMethodCompletion& FHubConnection::Invoke(FName InEventName, const TArray<FSignalRValue>& InArguments)
+IHubConnection::FOnMethodCompletion& FHubConnection::Invoke(FName InEventName, const TArray<FSignalRValue>& InArguments)
 {
     TTuple<FName, FOnMethodCompletion&> Callback = CallbackManager.RegisterCallback();
     InvokeHubMethod(InEventName, InArguments, Callback.Key);
