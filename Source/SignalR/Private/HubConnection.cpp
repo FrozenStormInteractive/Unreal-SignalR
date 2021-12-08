@@ -27,10 +27,8 @@
 #include "SignalRModule.h"
 #include "Dom/JsonObject.h"
 #include "MessageType.h"
-#include "WebSocketsModule.h"
 #include "Connection.h"
 #include "HandshakeProtocol.h"
-#include "Serialization/JsonSerializer.h"
 
 FHubConnection::FHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders):
     FTickableGameObject(),
