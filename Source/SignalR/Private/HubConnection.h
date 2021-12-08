@@ -40,10 +40,26 @@ public:
     FHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders);
     virtual ~FHubConnection();
 
+    virtual void Start() override;
+    virtual void Stop() override;
+
+    FORCEINLINE virtual FOnHubConnectedEvent& OnConnected() override
+    {
+        return OnHubConnectedEvent;
+    }
+
+    FORCEINLINE virtual FOnHubConnectionErrorEvent& OnConnectionError() override
+    {
+        return OnHubConnectionErrorEvent;
+    }
+
+    FORCEINLINE virtual FHubConnectionClosedEvent& OnClosed() override
+    {
+        return OnHubConnectionClosedEvent;
+    }
+
     virtual FOnMethodInvocation& On(FName EventName) override;
-
     virtual FOnMethodCompletion& Invoke(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
-
     virtual void Send(FName InEventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
 
     virtual void Tick(float DeltaTime) override;
@@ -69,7 +85,17 @@ protected:
     void ProcessMessage(const FString& InMessageStr);
 
 private:
+    enum class EConnectionState
+    {
+        Connecting,
+        Connected,
+        Disconnecting,
+        Disconnected,
+    };
+    EConnectionState ConnectionState;
+
     void OnConnectionStarted();
+    void OnConnectionError(const FString& /* Error */);
     void OnConnectionClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
 
     void Ping();
@@ -87,4 +113,8 @@ private:
     float TickTimeCounter = 0;
 
     TArray<FString> WaitingCalls;
+
+    FOnHubConnectedEvent OnHubConnectedEvent;
+    FOnHubConnectionErrorEvent OnHubConnectionErrorEvent;
+    FHubConnectionClosedEvent OnHubConnectionClosedEvent;
 };

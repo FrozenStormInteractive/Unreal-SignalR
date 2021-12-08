@@ -27,16 +27,35 @@
 #include "CoreMinimal.h"
 #include "SignalRValue.h"
 
-
-
 class SIGNALR_API IHubConnection : public TSharedFromThis<IHubConnection>
 {
 public:
-    DECLARE_DELEGATE_OneParam(FOnMethodInvocation, const TArray<FSignalRValue>&)
-    DECLARE_DELEGATE_OneParam(FOnMethodCompletion, const FSignalRValue&)
+    virtual void Start() = 0;
+    virtual void Stop() = 0;
 
+    /**
+     * Delegate called when a connection has been established successfully.
+     */
+    DECLARE_EVENT(IHubConnection, FOnHubConnectedEvent);
+    virtual FOnHubConnectedEvent& OnConnected() = 0;
+
+    /**
+     * Delegate called when a connection could not be established.
+     */
+    DECLARE_EVENT_OneParam(IHubConnection, FOnHubConnectionErrorEvent, const FString& /* Error */);
+    virtual FOnHubConnectionErrorEvent& OnConnectionError() = 0;
+
+    /**
+     * Delegate called when a web socket connection has been closed.
+     *
+     */
+    DECLARE_EVENT(IHubConnection, FHubConnectionClosedEvent);
+    virtual FHubConnectionClosedEvent& OnClosed() = 0;
+
+    DECLARE_DELEGATE_OneParam(FOnMethodInvocation, const TArray<FSignalRValue>&);
     virtual FOnMethodInvocation& On(FName EventName) = 0;
 
+    DECLARE_DELEGATE_OneParam(FOnMethodCompletion, const FSignalRValue&);
     virtual FOnMethodCompletion& Invoke(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;
 
     template <typename... ArgTypes>

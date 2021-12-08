@@ -41,9 +41,8 @@ FHubConnection::FHubConnection(const FString& InUrl, const TMap<FString, FString
 
     Connection->OnConnected().AddRaw(this, &FHubConnection::OnConnectionStarted);
     Connection->OnMessage().AddRaw(this, &FHubConnection::ProcessMessage);
+    Connection->OnConnectionError().AddRaw(this, &FHubConnection::OnConnectionError);
     Connection->OnClosed().AddRaw(this, &FHubConnection::OnConnectionClosed);
-
-    Connection->Connect();
 }
 
 FHubConnection::~FHubConnection()
@@ -52,6 +51,28 @@ FHubConnection::~FHubConnection()
 	{
         Connection->Close();
 	}
+}
+
+void FHubConnection::Start()
+{
+    if (ConnectionState != EConnectionState::Disconnected)
+    {
+        UE_LOG(LogSignalR, Error, TEXT("Hub connection can only be started if it is in the disconnected state"));
+        return;
+    }
+    ConnectionState = EConnectionState::Connecting;
+    Connection->Connect();
+}
+
+void FHubConnection::Stop()
+{
+    if (ConnectionState == EConnectionState::Disconnected)
+    {
+        UE_LOG(LogSignalR, Log, TEXT("Stop ignored because the connection is already disconnected"));
+        return;
+    }
+    ConnectionState = EConnectionState::Disconnecting;
+    Connection->Close();
 }
 
 IHubConnection::FOnMethodInvocation& FHubConnection::On(FName InEventName)
@@ -125,6 +146,9 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
             else
             {
                 bHandshakeReceived = true;
+                ConnectionState = EConnectionState::Connected;
+                OnHubConnectedEvent.Broadcast();
+
                 MessageStr = Res.Get<1>();
 
                 for (const FString& Call : WaitingCalls)
@@ -207,12 +231,19 @@ void FHubConnection::OnConnectionStarted()
     Connection->Send(FHandshakeProtocol::CreateHandshakeMessage(HubProtocol));
 }
 
+void FHubConnection::OnConnectionError(const FString& InError)
+{
+    OnHubConnectionErrorEvent.Broadcast(InError);
+}
+
 void FHubConnection::OnConnectionClosed(int32 StatusCode, const FString& Reason, bool bWasClean)
 {
 	if(Connection.IsValid())
 	{
         CallbackManager.Clear(TEXT("Connection was stopped before invocation result was received."));
 	}
+    ConnectionState = EConnectionState::Disconnected;
+    OnHubConnectionClosedEvent.Broadcast();
 }
 
 void FHubConnection::Ping()
