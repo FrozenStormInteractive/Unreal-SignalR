@@ -32,6 +32,7 @@
 
 FHubConnection::FHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders):
     FTickableGameObject(),
+    ConnectionState(EConnectionState::Disconnected),
     Host(InUrl),
     HubProtocol(MakeShared<FJsonHubProtocol>())
 {
@@ -47,6 +48,7 @@ FHubConnection::~FHubConnection()
 {
 	if(Connection.IsValid() && Connection->IsConnected())
 	{
+	    SendCloseMessage();
         Connection->Close();
 	}
 }
@@ -69,6 +71,7 @@ void FHubConnection::Stop()
         UE_LOG(LogSignalR, Log, TEXT("Stop ignored because the connection is already disconnected"));
         return;
     }
+    SendCloseMessage();
     ConnectionState = EConnectionState::Disconnecting;
     Connection->Close();
 }
@@ -212,8 +215,23 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
             UE_LOG(LogSignalR, VeryVerbose, TEXT("Ping received"));
             break;
         case ESignalRMessageType::Close:
-            // TODO
+        {
+            TSharedPtr<FCloseMessage> CloseMessage = StaticCastSharedPtr<FCloseMessage>(Message);
+            check(CloseMessage != nullptr);
+
+            if (CloseMessage->Error.IsSet())
+            {
+                FString CloseErrorMessage = CloseMessage->Error.GetValue();
+                UE_LOG(LogSignalR, Warning, TEXT("Received close message with error: %s"), *CloseErrorMessage);
+                OnHubConnectionErrorEvent.Broadcast(CloseErrorMessage);
+            }
+
+            bReceivedCloseMessage = true;
+            bShouldReconnect = CloseMessage->bAllowReconnect.Get(false);
+
+            Stop();
             break;
+        }
         default:
             break;
         }
@@ -234,16 +252,39 @@ void FHubConnection::OnConnectionStarted()
 void FHubConnection::OnConnectionError(const FString& InError)
 {
     OnHubConnectionErrorEvent.Broadcast(InError);
+
+    if (bShouldReconnect)
+    {
+        bShouldReconnect = false;
+        UE_LOG(LogSignalR, Verbose, TEXT("Reconnecting"));
+        Start();
+    }
 }
 
 void FHubConnection::OnConnectionClosed(int32 StatusCode, const FString& Reason, bool bWasClean)
 {
+    if (!bReceivedCloseMessage)
+    {
+        UE_LOG(LogSignalR, Warning, TEXT("The server was unexpectedly disconnected"));
+    }
+
 	if(Connection.IsValid())
 	{
         CallbackManager.Clear(TEXT("Connection was stopped before invocation result was received."));
 	}
     ConnectionState = EConnectionState::Disconnected;
     OnHubConnectionClosedEvent.Broadcast();
+
+    if (bReceivedCloseMessage)
+    {
+        bReceivedCloseMessage = false;
+        if (bShouldReconnect)
+        {
+            bShouldReconnect = false;
+            UE_LOG(LogSignalR, Verbose, TEXT("Reconnecting"));
+            Start();
+        }
+    }
 }
 
 void FHubConnection::Ping()
@@ -277,4 +318,11 @@ void FHubConnection::InvokeHubMethod(FName MethodName, const TArray<FSignalRValu
     {
         WaitingCalls.Add(Message);
     }
+}
+
+void FHubConnection::SendCloseMessage()
+{
+    FCloseMessage CloseMessage;
+    const auto Message = HubProtocol->SerializeMessage(&CloseMessage);
+    Connection->Send(Message);
 }

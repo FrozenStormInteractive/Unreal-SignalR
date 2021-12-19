@@ -140,7 +140,17 @@ FString FJsonHubProtocol::SerializeMessage(const FHubMessage* InMessage) const
             JsonObject->SetNumberField(TEXT("type"), StaticCast<int>(PingMessage->MessageType));
             break;
         }
-
+    case ESignalRMessageType::Close:
+        {
+            const FCloseMessage* CloseMessage = StaticCast<const FCloseMessage*>(InMessage);
+            check(CloseMessage != nullptr);
+            JsonObject->SetNumberField(TEXT("type"), StaticCast<int>(CloseMessage->MessageType));
+            if (CloseMessage->Error.IsSet())
+            {
+                JsonObject->SetStringField(TEXT("error"), CloseMessage->Error.GetValue());
+            }
+            break;
+        }
     default:
         break;
     }
@@ -313,6 +323,25 @@ TSharedPtr<FHubMessage> FJsonHubProtocol::ParseMessage(const FString& MessagePay
             case ESignalRMessageType::Ping:
             {
                 Message = MakeShared<FPingMessage>();
+                break;
+            }
+            case ESignalRMessageType::Close:
+            {
+                TSharedPtr<FCloseMessage> CloseMessage = MakeShared<FCloseMessage>();
+
+                FString Error;
+                if (Obj->TryGetStringField(TEXT("error"), Error))
+                {
+                    CloseMessage->Error = Error;
+                }
+
+                bool bAllowReconnect;
+                if (Obj->TryGetBoolField(TEXT("allowReconnect"), bAllowReconnect))
+                {
+                    CloseMessage->bAllowReconnect = bAllowReconnect;
+                }
+
+                Message = CloseMessage;
                 break;
             }
             default:

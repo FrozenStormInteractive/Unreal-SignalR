@@ -106,6 +106,16 @@ struct FPingMessage : FHubMessage
     }
 };
 
+struct FCloseMessage : FHubMessage
+{
+    FCloseMessage() : FHubMessage(ESignalRMessageType::Close)
+    {
+    }
+
+    TOptional<FString> Error;
+    TOptional<bool> bAllowReconnect;
+};
+
 class SIGNALR_API IHubProtocol
 {
 public:

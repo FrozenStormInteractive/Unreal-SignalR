@@ -117,4 +117,9 @@ private:
     FOnHubConnectedEvent OnHubConnectedEvent;
     FOnHubConnectionErrorEvent OnHubConnectionErrorEvent;
     FHubConnectionClosedEvent OnHubConnectionClosedEvent;
+
+    void SendCloseMessage();
+
+    bool bReceivedCloseMessage = false;
+    bool bShouldReconnect = false;
 };
