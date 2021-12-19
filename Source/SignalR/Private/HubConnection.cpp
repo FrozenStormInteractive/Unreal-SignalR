@@ -171,6 +171,7 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
         case ESignalRMessageType::Invocation:
         {
             TSharedPtr<FInvocationMessage> InvocationMessage = StaticCastSharedPtr<FInvocationMessage>(Message);
+            check(InvocationMessage != nullptr);
 
             FName MethodName = FName(*InvocationMessage->Target);
             if(InvocationHandlers.Contains(MethodName))
@@ -188,6 +189,7 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
         case ESignalRMessageType::Completion:
         {
             TSharedPtr<FCompletionMessage> CompletionMessage = StaticCastSharedPtr<FCompletionMessage>(Message);
+            check(CompletionMessage != nullptr);
 
             if(!CompletionMessage->Error.IsEmpty())
             {
