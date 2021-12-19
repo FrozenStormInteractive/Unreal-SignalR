@@ -3,7 +3,7 @@
 	"Version": 1,
 	"VersionName": "0.1",
 	"FriendlyName": "SignalR",
-	"Description": "SignalR Client  for Unreal Engine 4",
+	"Description": "SignalR Client for Unreal Engine",
 	"Category": "Online Platform",
 	"CreatedBy": "FrozenStorm Interactive",
 	"CreatedByURL": "https://github.com/FrozenStormInteractive",
