@@ -25,6 +25,7 @@
 #include "JsonHubProtocol.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
+#include "Misc/Base64.h"
 #include "SignalRModule.h"
 
 FName FJsonHubProtocol::Name() const

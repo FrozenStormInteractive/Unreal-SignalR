@@ -23,12 +23,11 @@
  */
 
 #include "SignalRModule.h"
-
-#include "HubConnection.h"
 #include "Modules/ModuleManager.h"
 #include "IHubConnection.h"
 #include "WebSocketsModule.h"
 #include "SignalRSubsystem.h"
+#include "Engine/Engine.h"
 
 IMPLEMENT_MODULE(FSignalRModule, SignalR);
 
