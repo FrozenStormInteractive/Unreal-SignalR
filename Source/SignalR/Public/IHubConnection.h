@@ -27,6 +27,38 @@
 #include "CoreMinimal.h"
 #include "SignalRValue.h"
 
+class FSignalRInvokeResult : public FSignalRValue
+{
+public:
+    FSignalRInvokeResult(const FSignalRValue& Value) : FSignalRValue(Value)
+    {
+    }
+
+    FORCEINLINE bool HasError() const
+    {
+        return bError;
+    }
+
+    FORCEINLINE const FString& GetErrorMessage() const
+    {
+        return ErrorMessage;
+    }
+
+    FORCEINLINE static FSignalRInvokeResult Error(const FString& ErrorMessage)
+    {
+        FSignalRInvokeResult Result;
+        Result.bError = true;
+        Result.ErrorMessage = ErrorMessage;
+        return Result;
+    }
+
+private:
+    FSignalRInvokeResult() = default;
+
+    bool bError = false;
+    FString ErrorMessage;
+};
+
 class SIGNALR_API IHubConnection : public TSharedFromThis<IHubConnection>
 {
 public:
@@ -55,7 +87,7 @@ public:
     DECLARE_DELEGATE_OneParam(FOnMethodInvocation, const TArray<FSignalRValue>&);
     virtual FOnMethodInvocation& On(FName EventName) = 0;
 
-    DECLARE_DELEGATE_OneParam(FOnMethodCompletion, const FSignalRValue&);
+    DECLARE_DELEGATE_OneParam(FOnMethodCompletion, const FSignalRInvokeResult&);
     virtual FOnMethodCompletion& Invoke(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;
 
     template <typename... ArgTypes>

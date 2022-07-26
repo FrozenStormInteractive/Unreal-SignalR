@@ -83,7 +83,7 @@ void FCallbackManager::Clear(const FString& ErrorMessage)
 
         for (auto& El : Callbacks)
         {
-            El.Value.ExecuteIfBound(FSignalRValue()); // TODO send error message
+            El.Value.ExecuteIfBound(FSignalRInvokeResult::Error(ErrorMessage));
         }
 
         Callbacks.Empty();

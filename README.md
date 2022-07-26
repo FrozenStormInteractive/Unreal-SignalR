@@ -43,7 +43,8 @@ TSharedPtr<IHubConnection> Hub = GEngine->GetEngineSubsystem<USignalRSubsystem>(
 
 Bind an event which is fired when the server call it to the client.
 ```cpp
-Hub->On(TEXT("EventName")).BindLambda([](const TArray<FSignalRValue>& Arguments) {
+Hub->On(TEXT("EventName")).BindLambda([](const TArray<FSignalRValue>& Arguments)
+{
     ...
 });
 ```
@@ -51,8 +52,12 @@ Hub->On(TEXT("EventName")).BindLambda([](const TArray<FSignalRValue>& Arguments)
 `Invoke` fires an event when the server has finished invoking the method (or an error occurred). In addition, the event
 can receive a result from the server method, if the server returns a result.
 ```cpp
-Hub->Invoke(TEXT("Add"), 1, 1).BindLambda([](const FSignalRValue& Result) {
-    UE_LOG(LogTemp, Warning, TEXT("The result value is: %d"), Result.AsInt());
+Hub->Invoke(TEXT("Add"), 1, 1).BindLambda([](const FSignalRInvokeResult& Result)
+{
+    if (!Result.HasError())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("The result value is: %d"), Result.AsInt());
+    }
 });
 ```
 
