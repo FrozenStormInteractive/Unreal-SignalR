@@ -70,5 +70,5 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on how to contrib
 This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
 
 ```
-Copyright (c) 2020-2021 FrozenStorm Interactive, Yoann Potinet
+Copyright (c) 2020-2021 Frozen Storm Interactive, Yoann Potinet
 ```
