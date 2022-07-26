@@ -61,6 +61,34 @@ Unlike the `Invoke` method, the `Send` method doesn't wait for a response from t
 Hub->Send(TEXT("Add"), 1, 1);
 ```
 
+## Troubleshooting
+
+### Nothing happens when connecting to SignalR URL
+
+Keep a reference to your connection with a shared pointer. If you don't do this, the connection object will be destroyed and therefore won't work.
+
+Remember that the function `IHubConnection::Start` is asynchronous. When you send data after calling the function, the connection may not be complete (the data to be sent are kept on hold)
+
+### Negotiate failed with status code 307
+
+```
+LogSignalR: Error: Negotiate failed with status code 307
+```
+
+Redirections are not yet supported. Use IP address or a domain name without redirection.
+
+You can also disable `UseHttpsRedirection()` in ASP.NET Core.
+
+### Peer certificate cannot be authenticated with given CA certificates
+
+The HTTP module does not support self-signed certificates. The dotnet development certificate is not recognized by Unreal.
+
+You can:
+- use the HTTP protocol (Disable `UseHttpsRedirection()` in ASP.NET Core)
+- or disable peer verification in **Project Settings** > **Engine** > **Network** > **Verify Peer**
+
+![Disable peer verification in Unreal Project Settings](/Docs/Unreal-DisablePeerVerification.png)
+
 ## Contributing
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on how to contribute.
