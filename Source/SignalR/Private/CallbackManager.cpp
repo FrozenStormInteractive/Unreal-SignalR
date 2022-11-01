@@ -39,9 +39,9 @@ TTuple<FName, IHubConnection::FOnMethodCompletion&> FCallbackManager::RegisterCa
     FName Id = GenerateCallbackId();
 
     FScopeLock Lock(&CallbacksLock);
-    IHubConnection::FOnMethodCompletion& qssq = Callbacks.Add(Id);
+    IHubConnection::FOnMethodCompletion& Callback = Callbacks.Add(Id);
 
-    return TTuple<FName, IHubConnection::FOnMethodCompletion&>(Id, qssq);
+    return TTuple<FName, IHubConnection::FOnMethodCompletion&>(Id, Callback);
 }
 
 bool FCallbackManager::InvokeCallback(FName InCallbackId, const FSignalRValue& InArguments, bool InRemoveCallback)

@@ -225,7 +225,7 @@ public:
     /**
      * True if the object stored is a double.
      */
-    FORCEINLINE bool IsDouble() const
+    FORCEINLINE bool IsNumber() const
     {
         return Type == EValueType::Number;
     }
