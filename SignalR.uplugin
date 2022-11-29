@@ -19,6 +19,11 @@
 			"Name": "SignalR",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "SignalRBlueprint",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	]
 }
