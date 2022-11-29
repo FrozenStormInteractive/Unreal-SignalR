@@ -1,7 +1,7 @@
-/*
+﻿/*
  * MIT License
  *
- * Copyright (c) 2020-2021 FrozenStorm Interactive
+ * Copyright (c) 2020-2021 Frozen Storm Interactive
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,25 +22,26 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "SignalRValueWrapper.h"
 
-#include "CoreMinimal.h"
-#include "Subsystems/EngineSubsystem.h"
-#include "SignalRSubsystem.generated.h"
-
-class IHubConnection;
-
-UCLASS(NotBlueprintType)
-class SIGNALR_API USignalRSubsystem : public UEngineSubsystem
+FSignalRValueWrapper::FSignalRValueWrapper(const FSignalRValueWrapper& Other)
 {
-    GENERATED_BODY()
-public:
+    *this = Other;
+}
 
-    /**
-     * Create a new hub connection.
-     *
-     * @param url
-     * @return An IHubConnection instance
-     */
-    TSharedPtr<IHubConnection> CreateHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders = TMap<FString, FString>());
-};
+FSignalRValueWrapper::FSignalRValueWrapper(FSignalRValueWrapper&& Other) noexcept:
+    InternalValue(MoveTemp(Other.InternalValue))
+{
+}
+
+FSignalRValueWrapper& FSignalRValueWrapper::operator=(FSignalRValueWrapper const& Other)
+{
+    InternalValue = Other.InternalValue;
+    return *this;
+}
+
+FSignalRValueWrapper& FSignalRValueWrapper::operator=(FSignalRValueWrapper&& Other) noexcept
+{
+    InternalValue = MoveTemp(Other.InternalValue);
+    return *this;
+}

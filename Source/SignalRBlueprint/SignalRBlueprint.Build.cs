@@ -22,25 +22,26 @@
  * SOFTWARE.
  */
 
-#pragma once
+using System;
+using UnrealBuildTool;
 
-#include "CoreMinimal.h"
-#include "Subsystems/EngineSubsystem.h"
-#include "SignalRSubsystem.generated.h"
-
-class IHubConnection;
-
-UCLASS(NotBlueprintType)
-class SIGNALR_API USignalRSubsystem : public UEngineSubsystem
+public class SignalRBlueprint : ModuleRules
 {
-    GENERATED_BODY()
-public:
+	public SignalRBlueprint(ReadOnlyTargetRules Target) : base(Target)
+	{
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-    /**
-     * Create a new hub connection.
-     *
-     * @param url
-     * @return An IHubConnection instance
-     */
-    TSharedPtr<IHubConnection> CreateHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders = TMap<FString, FString>());
-};
+        PublicDependencyModuleNames.AddRange(new string[]
+        {
+            "Core",
+            "CoreUObject",
+            "ApplicationCore",
+            "SignalR",
+        });
+
+        PrivateDependencyModuleNames.AddRange(new string[]
+        {
+            "Engine",
+        });
+    }
+}

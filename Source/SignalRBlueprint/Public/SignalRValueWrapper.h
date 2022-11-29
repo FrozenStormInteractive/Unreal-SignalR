@@ -1,7 +1,7 @@
-/*
+﻿/*
  * MIT License
  *
- * Copyright (c) 2020-2021 FrozenStorm Interactive
+ * Copyright (c) 2020-2021 Frozen Storm Interactive
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,22 +25,32 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/EngineSubsystem.h"
-#include "SignalRSubsystem.generated.h"
+#include "SignalRValue.h"
+#include "SignalRValueWrapper.generated.h"
 
-class IHubConnection;
-
-UCLASS(NotBlueprintType)
-class SIGNALR_API USignalRSubsystem : public UEngineSubsystem
+USTRUCT(BlueprintType, DisplayName = "SignalR Value")
+struct FSignalRValueWrapper
 {
     GENERATED_BODY()
-public:
 
-    /**
-     * Create a new hub connection.
-     *
-     * @param url
-     * @return An IHubConnection instance
-     */
-    TSharedPtr<IHubConnection> CreateHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders = TMap<FString, FString>());
+    FSignalRValueWrapper() = default;
+    FSignalRValueWrapper(const FSignalRValue& Value):
+        InternalValue(Value)
+    {}
+
+    explicit FSignalRValueWrapper(const FSignalRValueWrapper& Other);
+    FSignalRValueWrapper(FSignalRValueWrapper&& Other) noexcept;
+
+    FSignalRValueWrapper& operator=(FSignalRValueWrapper const& Other);
+    FSignalRValueWrapper& operator=(FSignalRValueWrapper&& Other) noexcept;
+
+    FSignalRValue InternalValue;
 };
+
+#if 0
+USTRUCT(BlueprintType, DisplayName = "SignalR Invoke Result")
+struct FSignalRInvokeResultWrapper
+{
+    GENERATED_BODY()
+};
+#endif

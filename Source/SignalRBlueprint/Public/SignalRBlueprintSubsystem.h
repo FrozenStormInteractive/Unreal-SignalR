@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  *
  * Copyright (c) 2020-2021 FrozenStorm Interactive
@@ -26,21 +26,25 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/EngineSubsystem.h"
-#include "SignalRSubsystem.generated.h"
+#include "SignalRBlueprintSubsystem.generated.h"
 
-class IHubConnection;
+class USignalRHubConnectionWrapper;
+class USignalRSubsystem;
 
-UCLASS(NotBlueprintType)
-class SIGNALR_API USignalRSubsystem : public UEngineSubsystem
+UCLASS(BlueprintType, DisplayName = "SignalR Subsystem")
+class USignalRBlueprintSubsystem : public UEngineSubsystem
 {
     GENERATED_BODY()
 public:
+    //~ Begin UEngineSubsystem Interface
+    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+    virtual void Deinitialize() override;
+    //~ End UEngineSubsystem Interface
 
-    /**
-     * Create a new hub connection.
-     *
-     * @param url
-     * @return An IHubConnection instance
-     */
-    TSharedPtr<IHubConnection> CreateHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders = TMap<FString, FString>());
+    UFUNCTION(BlueprintCallable, Meta = (AutoCreateRefTerm = "Headers"))
+    USignalRHubConnectionWrapper* ConnectToHub(const FString& Url, const TMap<FString, FString>& Headers);
+
+private:
+    UPROPERTY()
+    USignalRSubsystem* SignalRSubsystem;
 };

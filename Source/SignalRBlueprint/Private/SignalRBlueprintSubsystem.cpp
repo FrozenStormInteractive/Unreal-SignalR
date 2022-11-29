@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIT License
  *
  * Copyright (c) 2020-2021 FrozenStorm Interactive
@@ -22,25 +22,28 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "SignalRBlueprintSubsystem.h"
+#include "SignalRHubConnectionWrapper.h"
+#include "SignalRSubsystem.h"
 
-#include "CoreMinimal.h"
-#include "Subsystems/EngineSubsystem.h"
-#include "SignalRSubsystem.generated.h"
-
-class IHubConnection;
-
-UCLASS(NotBlueprintType)
-class SIGNALR_API USignalRSubsystem : public UEngineSubsystem
+void USignalRBlueprintSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-    GENERATED_BODY()
-public:
+    Super::Initialize(Collection);
 
-    /**
-     * Create a new hub connection.
-     *
-     * @param url
-     * @return An IHubConnection instance
-     */
-    TSharedPtr<IHubConnection> CreateHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders = TMap<FString, FString>());
-};
+    SignalRSubsystem = Collection.InitializeDependency<USignalRSubsystem>();
+    checkfSlow(SignalRSubsystem != nullptr, TEXT("SignalRSubsystem is required"));
+}
+
+void USignalRBlueprintSubsystem::Deinitialize()
+{
+    Super::Deinitialize();
+}
+
+USignalRHubConnectionWrapper* USignalRBlueprintSubsystem::ConnectToHub(const FString& InUrl,
+                                                                const TMap<FString, FString>& InHeaders)
+{
+    checkfSlow(SignalRSubsystem != nullptr, TEXT("SignalRSubsystem must have be set during initialization"));
+    USignalRHubConnectionWrapper* HubConnectionWrapper =  NewObject<USignalRHubConnectionWrapper>();
+    HubConnectionWrapper->SetHubConnection(SignalRSubsystem->CreateHubConnection(InUrl, InHeaders));
+    return HubConnectionWrapper;
+}

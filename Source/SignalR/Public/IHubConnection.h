@@ -34,6 +34,46 @@ public:
     {
     }
 
+    /**
+     * Copies an existing result.
+     */
+    FSignalRInvokeResult(const FSignalRInvokeResult& OtherValue) : FSignalRValue(OtherValue)
+    {
+        bError = OtherValue.bError;
+        ErrorMessage = OtherValue.ErrorMessage;
+    }
+
+    /**
+     * Moves an existing result.
+     */
+    FSignalRInvokeResult(FSignalRInvokeResult&& OtherValue) noexcept : FSignalRValue(MoveTemp(OtherValue))
+    {
+        bError = MoveTemp(OtherValue.bError);
+        ErrorMessage = MoveTemp(OtherValue.ErrorMessage);
+    }
+
+    /**
+     * Copies an existing result.
+     */
+    FSignalRInvokeResult& operator=(const FSignalRInvokeResult& OtherValue)
+    {
+        FSignalRValue::operator=(OtherValue);
+        bError = OtherValue.bError;
+        ErrorMessage = OtherValue.ErrorMessage;
+        return *this;
+    }
+
+    /**
+     * Moves an existing result.
+     */
+    FSignalRInvokeResult& operator=(FSignalRInvokeResult&& OtherValue) noexcept
+    {
+        FSignalRValue::operator=(MoveTemp(OtherValue));
+        bError = MoveTemp(OtherValue.bError);
+        ErrorMessage = MoveTemp(OtherValue.ErrorMessage);
+        return *this;
+    }
+
     FORCEINLINE bool HasError() const
     {
         return bError;
