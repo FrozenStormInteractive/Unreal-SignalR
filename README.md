@@ -1,7 +1,7 @@
 <h1 align="center">
   <br>
   <a href="https://github.com/FrozenStormInteractive/Unreal-SignalR">
-    <img src="Docs/Logo.svg" alt="Logo" width="170">
+    <img src="Docs/static/img/logo.svg" alt="Logo" width="170">
    </a>
   <br>
   SignalR for Unreal
@@ -92,7 +92,7 @@ You can:
 - use the HTTP protocol (Disable `UseHttpsRedirection()` in ASP.NET Core)
 - or disable peer verification in **Project Settings** > **Engine** > **Network** > **Verify Peer**
 
-![Disable peer verification in Unreal Project Settings](/Docs/Unreal-DisablePeerVerification.png)
+![Disable peer verification in Unreal Project Settings](/Docs/static/img/Unreal-DisablePeerVerification.png)
 
 ## Contributing
 
@@ -103,5 +103,5 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on how to contrib
 This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
 
 ```
-Copyright (c) 2020-2021 Frozen Storm Interactive, Yoann Potinet
+Copyright (c) 2020-2022 Frozen Storm Interactive, Yoann Potinet
 ```
