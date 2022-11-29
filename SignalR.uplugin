@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.1",
+	"VersionName": "1.0.0b1",
 	"FriendlyName": "SignalR",
 	"Description": "SignalR Client for Unreal Engine",
 	"Category": "Online Platform",
