@@ -1,7 +1,7 @@
 ﻿/*
  * MIT License
  *
- * Copyright (c) 2020-2021 FrozenStorm Interactive
+ * Copyright (c) 2020-2022 Frozen Storm Interactive, Yoann Potinet
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
