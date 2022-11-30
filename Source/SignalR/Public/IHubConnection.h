@@ -125,22 +125,22 @@ public:
     virtual FHubConnectionClosedEvent& OnClosed() = 0;
 
     DECLARE_DELEGATE_OneParam(FOnMethodInvocation, const TArray<FSignalRValue>&);
-    virtual FOnMethodInvocation& On(FName EventName) = 0;
+    virtual FOnMethodInvocation& On(const FString& EventName) = 0;
 
     DECLARE_DELEGATE_OneParam(FOnMethodCompletion, const FSignalRInvokeResult&);
-    virtual FOnMethodCompletion& Invoke(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;
+    virtual FOnMethodCompletion& Invoke(const FString& EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;
 
     template <typename... ArgTypes>
-    FORCEINLINE FOnMethodCompletion& Invoke(FName EventName, ArgTypes... Arguments)
+    FORCEINLINE FOnMethodCompletion& Invoke(const FString& EventName, ArgTypes... Arguments)
     {
         static_assert(TAnd<TIsConstructible<FSignalRValue, ArgTypes>...>::Value, "Invalid argument type passed to IHubConnection::Invoke");
         return Invoke(EventName, TArray<FSignalRValue> { MoveTemp(Arguments)... });
     }
 
-    virtual void Send(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;
+    virtual void Send(const FString& EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) = 0;
 
     template <typename... ArgTypes>
-    FORCEINLINE void Send(FName EventName, ArgTypes... Arguments)
+    FORCEINLINE void Send(const FString& EventName, ArgTypes... Arguments)
     {
         static_assert(TAnd<TIsConstructible<FSignalRValue, ArgTypes>...>::Value, "Invalid argument type passed to IHubConnection::Send");
         Send(EventName, TArray<FSignalRValue> { MoveTemp(Arguments)... });

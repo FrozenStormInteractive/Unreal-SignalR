@@ -29,6 +29,7 @@
 #include "MessageType.h"
 #include "Connection.h"
 #include "HandshakeProtocol.h"
+#include "StringUtils.h"
 
 FHubConnection::FHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders):
     FTickableGameObject(),
@@ -76,33 +77,33 @@ void FHubConnection::Stop()
     Connection->Close();
 }
 
-IHubConnection::FOnMethodInvocation& FHubConnection::On(FName InEventName)
+IHubConnection::FOnMethodInvocation& FHubConnection::On(const FString& InEventName)
 {
     static FOnMethodInvocation BadDelegate;
 
-    if(InEventName.IsNone())
+    if(StringUtils::IsEmptyOrWhitespace(InEventName))
     {
-        UE_LOG(LogSignalR, Error, TEXT("EventName cannot be none."));
+        UE_LOG(LogSignalR, Error, TEXT("EventName cannot be empty."));
         return BadDelegate;
     }
 
     if(InvocationHandlers.Contains(InEventName))
     {
-        UE_LOG(LogSignalR, Error, TEXT("An action for this event has already been registered. event name: %s"), *InEventName.ToString());
+        UE_LOG(LogSignalR, Error, TEXT("An action for this event has already been registered. event name: %s"), *InEventName);
         return BadDelegate;
     }
 
     return InvocationHandlers.Add(InEventName);
 }
 
-IHubConnection::FOnMethodCompletion& FHubConnection::Invoke(FName InEventName, const TArray<FSignalRValue>& InArguments)
+IHubConnection::FOnMethodCompletion& FHubConnection::Invoke(const FString& InEventName, const TArray<FSignalRValue>& InArguments)
 {
     TTuple<FName, FOnMethodCompletion&> Callback = CallbackManager.RegisterCallback();
     InvokeHubMethod(InEventName, InArguments, Callback.Key);
     return Callback.Value;
 }
 
-void FHubConnection::Send(FName InEventName, const TArray<FSignalRValue>& InArguments)
+void FHubConnection::Send(const FString& InEventName, const TArray<FSignalRValue>& InArguments)
 {
     InvokeHubMethod(InEventName, InArguments, NAME_None);
 }
@@ -176,7 +177,7 @@ void FHubConnection::ProcessMessage(const FString& InMessageStr)
             TSharedPtr<FInvocationMessage> InvocationMessage = StaticCastSharedPtr<FInvocationMessage>(Message);
             check(InvocationMessage != nullptr);
 
-            FName MethodName = FName(*InvocationMessage->Target);
+            const FString& MethodName = InvocationMessage->Target;
             if(InvocationHandlers.Contains(MethodName))
             {
                 InvocationHandlers[MethodName].ExecuteIfBound(InvocationMessage->Arguments);
@@ -298,7 +299,7 @@ void FHubConnection::Ping()
     }
 }
 
-void FHubConnection::InvokeHubMethod(FName MethodName, const TArray<FSignalRValue>& InArguments, FName CallbackId)
+void FHubConnection::InvokeHubMethod(const FString& MethodName, const TArray<FSignalRValue>& InArguments, FName CallbackId)
 {
     FString CallbackIdStr;
     if (CallbackId.IsValid() && !CallbackId.IsNone())
@@ -306,7 +307,7 @@ void FHubConnection::InvokeHubMethod(FName MethodName, const TArray<FSignalRValu
         CallbackIdStr = CallbackId.ToString();
     }
 
-    FInvocationMessage Invocation(CallbackIdStr, MethodName.ToString(), InArguments);
+    const FInvocationMessage Invocation(CallbackIdStr, MethodName, InArguments);
 
     const auto Message = HubProtocol->SerializeMessage(&Invocation);
 
@@ -322,7 +323,7 @@ void FHubConnection::InvokeHubMethod(FName MethodName, const TArray<FSignalRValu
 
 void FHubConnection::SendCloseMessage()
 {
-    FCloseMessage CloseMessage;
+    const FCloseMessage CloseMessage;
     const auto Message = HubProtocol->SerializeMessage(&CloseMessage);
     Connection->Send(Message);
 }
