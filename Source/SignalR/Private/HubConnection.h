@@ -40,6 +40,7 @@ public:
     FHubConnection(const FString& InUrl, const TMap<FString, FString>& InHeaders);
     virtual ~FHubConnection();
 
+    //~ Begin IHubConnection Interface
     virtual void Start() override;
     virtual void Stop() override;
 
@@ -58,10 +59,12 @@ public:
         return OnHubConnectionClosedEvent;
     }
 
-    virtual FOnMethodInvocation& On(FName EventName) override;
-    virtual FOnMethodCompletion& Invoke(FName EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
-    virtual void Send(FName InEventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
+    virtual FOnMethodInvocation& On(const FString& EventName) override;
+    virtual FOnMethodCompletion& Invoke(const FString& EventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
+    virtual void Send(const FString& InEventName, const TArray<FSignalRValue>& InArguments = TArray<FSignalRValue>()) override;
+    //~ End IHubConnection Interface
 
+    //~ Begin FTickableGameObject Interface
     virtual void Tick(float DeltaTime) override;
     TStatId GetStatId() const override;
     virtual ETickableTickType GetTickableTickType() const override
@@ -80,6 +83,7 @@ public:
     {
         return true;
     }
+    //~ Begin FTickableGameObject Interface
 
 protected:
     void ProcessMessage(const FString& InMessageStr);
@@ -99,13 +103,13 @@ private:
     void OnConnectionClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
 
     void Ping();
-    void InvokeHubMethod(FName MethodName, const TArray<FSignalRValue>& InArguments, FName CallbackId);
+    void InvokeHubMethod(const FString& MethodName, const TArray<FSignalRValue>& InArguments, FName CallbackId);
 
     FString Host;
 
     TSharedPtr<IHubProtocol> HubProtocol;
     TSharedPtr<FConnection> Connection;
-    TMap<FName, FOnMethodInvocation> InvocationHandlers;
+    TMap<FString, FOnMethodInvocation> InvocationHandlers;
     FCallbackManager CallbackManager;
 
     bool bHandshakeReceived = false;

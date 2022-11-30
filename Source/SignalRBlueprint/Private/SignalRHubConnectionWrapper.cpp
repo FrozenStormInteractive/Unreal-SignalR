@@ -56,7 +56,7 @@ void USignalRHubConnectionWrapper::Stop()
     }
 }
 
-void USignalRHubConnectionWrapper::Send(FName EventName, const TArray<FSignalRValueWrapper>& Arguments)
+void USignalRHubConnectionWrapper::Send(const FString& EventName, const TArray<FSignalRValueWrapper>& Arguments)
 {
     if (HubConnection.IsValid())
     {
@@ -66,7 +66,7 @@ void USignalRHubConnectionWrapper::Send(FName EventName, const TArray<FSignalRVa
     }
 }
 
-void USignalRHubConnectionWrapper::Invoke(FName EventName, const TArray<FSignalRValueWrapper>& InArguments, const FOnInvokeCompleted& OnCompleted)
+void USignalRHubConnectionWrapper::Invoke(const FString& EventName, const TArray<FSignalRValueWrapper>& InArguments, const FOnInvokeCompleted& OnCompleted)
 {
     if (HubConnection.IsValid())
     {
