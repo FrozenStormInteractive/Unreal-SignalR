@@ -25,6 +25,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IHubConnection.h"
 #include "SignalRValue.h"
 #include "SignalRValueWrapper.generated.h"
 
@@ -34,10 +35,7 @@ struct FSignalRValueWrapper
     GENERATED_BODY()
 
     FSignalRValueWrapper() = default;
-    FSignalRValueWrapper(const FSignalRValue& Value):
-        InternalValue(Value)
-    {}
-
+    FSignalRValueWrapper(const FSignalRValue& Value);
     explicit FSignalRValueWrapper(const FSignalRValueWrapper& Other);
     FSignalRValueWrapper(FSignalRValueWrapper&& Other) noexcept;
 
@@ -47,10 +45,18 @@ struct FSignalRValueWrapper
     FSignalRValue InternalValue;
 };
 
-#if 0
-USTRUCT(BlueprintType, DisplayName = "SignalR Invoke Result")
-struct FSignalRInvokeResultWrapper
+USTRUCT(BlueprintType, DisplayName = "SignalR Invoke Result", Meta=(HiddenByDefault))
+struct FSignalRInvokeResultWrapper : public FSignalRValueWrapper
 {
     GENERATED_BODY()
+
+    FSignalRInvokeResultWrapper() = default;
+    FSignalRInvokeResultWrapper(const FSignalRInvokeResult& Value);
+    explicit FSignalRInvokeResultWrapper(const FSignalRInvokeResultWrapper& Other);
+    FSignalRInvokeResultWrapper(FSignalRInvokeResultWrapper&& Other) noexcept;
+
+    FSignalRInvokeResultWrapper& operator=(FSignalRInvokeResultWrapper const& Other);
+    FSignalRInvokeResultWrapper& operator=(FSignalRInvokeResultWrapper&& Other) noexcept;
+
+    FSignalRInvokeResult InternalResult;
 };
-#endif

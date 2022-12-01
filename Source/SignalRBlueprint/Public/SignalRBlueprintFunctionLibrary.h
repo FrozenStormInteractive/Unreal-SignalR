@@ -30,7 +30,7 @@
 #include "SignalRValueWrapper.h"
 #include "SignalRBlueprintFunctionLibrary.generated.h"
 
-UENUM(BlueprintType)
+UENUM()
 enum class ESignalRValueCastResult : uint8
 {
     Success,
@@ -71,4 +71,13 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "SignalR", Meta = (ExpandEnumAsExecs = "CastResult"))
     static bool AsBool(const FSignalRValueWrapper& SignalRValue, ESignalRValueCastResult& CastResult);
+
+    UFUNCTION(BlueprintPure, Category = "SignalR")
+    static bool HasError(const FSignalRInvokeResultWrapper& SignalRInvokeResult);
+
+    UFUNCTION(BlueprintPure, Category = "SignalR")
+    static FString GetSignalRInvokeResultErrorMessage(const FSignalRInvokeResultWrapper& SignalRInvokeResult);
+
+    UFUNCTION(BlueprintPure, Category = "SignalR")
+    static FSignalRValueWrapper GetSignalRInvokeResultValue(const FSignalRInvokeResultWrapper& SignalRInvokeResult);
 };

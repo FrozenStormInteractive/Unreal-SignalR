@@ -29,6 +29,7 @@
 
 class FSignalRInvokeResult : public FSignalRValue
 {
+    friend struct FSignalRInvokeResultWrapper;
 public:
     FSignalRInvokeResult(const FSignalRValue& Value) : FSignalRValue(Value)
     {

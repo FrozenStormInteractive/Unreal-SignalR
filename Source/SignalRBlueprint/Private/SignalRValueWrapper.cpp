@@ -24,9 +24,13 @@
 
 #include "SignalRValueWrapper.h"
 
-FSignalRValueWrapper::FSignalRValueWrapper(const FSignalRValueWrapper& Other)
+FSignalRValueWrapper::FSignalRValueWrapper(const FSignalRValue& Value):
+    InternalValue(Value)
+{}
+
+FSignalRValueWrapper::FSignalRValueWrapper(const FSignalRValueWrapper& Other):
+    InternalValue(Other.InternalValue)
 {
-    *this = Other;
 }
 
 FSignalRValueWrapper::FSignalRValueWrapper(FSignalRValueWrapper&& Other) noexcept:
@@ -43,5 +47,34 @@ FSignalRValueWrapper& FSignalRValueWrapper::operator=(FSignalRValueWrapper const
 FSignalRValueWrapper& FSignalRValueWrapper::operator=(FSignalRValueWrapper&& Other) noexcept
 {
     InternalValue = MoveTemp(Other.InternalValue);
+    return *this;
+}
+
+FSignalRInvokeResultWrapper::FSignalRInvokeResultWrapper(const FSignalRInvokeResult& Value): FSignalRValueWrapper(Value),
+    InternalResult(Value)
+{
+}
+
+FSignalRInvokeResultWrapper::FSignalRInvokeResultWrapper(const FSignalRInvokeResultWrapper& Other): FSignalRValueWrapper(Other),
+    InternalResult(Other.InternalValue)
+{
+}
+
+FSignalRInvokeResultWrapper::FSignalRInvokeResultWrapper(FSignalRInvokeResultWrapper&& Other) noexcept: FSignalRValueWrapper(Other),
+    InternalResult(MoveTemp(Other.InternalValue))
+{
+}
+
+FSignalRInvokeResultWrapper& FSignalRInvokeResultWrapper::operator=(FSignalRInvokeResultWrapper const& Other)
+{
+    InternalValue = Other.InternalValue;
+    InternalResult = Other.InternalResult;
+    return *this;
+}
+
+FSignalRInvokeResultWrapper& FSignalRInvokeResultWrapper::operator=(FSignalRInvokeResultWrapper&& Other) noexcept
+{
+    InternalValue = MoveTemp(Other.InternalValue);
+    InternalResult = MoveTemp(Other.InternalResult);
     return *this;
 }

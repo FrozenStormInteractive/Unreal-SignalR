@@ -118,3 +118,18 @@ bool USignalRBlueprintFunctionLibrary::AsBool(const FSignalRValueWrapper& Signal
         return false;
     }
 }
+
+bool USignalRBlueprintFunctionLibrary::HasError(const FSignalRInvokeResultWrapper& Result)
+{
+    return Result.InternalResult.HasError();
+}
+
+FString USignalRBlueprintFunctionLibrary::GetSignalRInvokeResultErrorMessage(const FSignalRInvokeResultWrapper& Result)
+{
+    return Result.InternalResult.GetErrorMessage();
+}
+
+FSignalRValueWrapper USignalRBlueprintFunctionLibrary::GetSignalRInvokeResultValue(const FSignalRInvokeResultWrapper& Result)
+{
+    return Result.InternalValue;
+}

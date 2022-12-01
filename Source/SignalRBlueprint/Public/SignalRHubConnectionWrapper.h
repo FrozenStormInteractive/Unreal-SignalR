@@ -60,7 +60,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "SignalR", DisplayName = "Invoke SignalR Method", Meta = (AutoCreateRefTerm = "Arguments"))
     void Send(const FString& EventName, const TArray<FSignalRValueWrapper>& Arguments);
 
-    DECLARE_DYNAMIC_DELEGATE_OneParam(FOnInvokeCompleted, const FSignalRValueWrapper&, Result);
+    DECLARE_DYNAMIC_DELEGATE_OneParam(FOnInvokeCompleted, const FSignalRInvokeResultWrapper&, Result);
 
     UFUNCTION(BlueprintCallable, Category = "SignalR", DisplayName = "Invoke SignalR Method (Latent)", Meta = (AutoCreateRefTerm = "Arguments, OnCompleted"))
     void Invoke(const FString& EventName, const TArray<FSignalRValueWrapper>& Arguments, const FOnInvokeCompleted& OnCompleted);
