@@ -41,6 +41,9 @@ public:
 
     void Close(int32 Code = 1000, const FString& Reason = FString());
 
+    DECLARE_EVENT(FConnection, FConnectionFailedEvent);
+    FConnectionFailedEvent& OnConnectionFailed();
+
     IWebSocket::FWebSocketConnectedEvent& OnConnected();
 
     IWebSocket::FWebSocketConnectionErrorEvent& OnConnectionError();
@@ -58,6 +61,7 @@ private:
     FString Host;
     TMap<FString, FString> Headers;
 
+    FConnectionFailedEvent OnConnectionFailedEvent;
     IWebSocket::FWebSocketConnectedEvent OnConnectedEvent;
     IWebSocket::FWebSocketConnectionErrorEvent OnConnectionErrorEvent;
     IWebSocket::FWebSocketClosedEvent OnClosedEvent;

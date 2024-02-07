@@ -73,6 +73,11 @@ void FConnection::Close(int32 Code, const FString& Reason)
     }
 }
 
+FConnection::FConnectionFailedEvent& FConnection::OnConnectionFailed()
+{
+    return OnConnectionFailedEvent;
+}
+
 IWebSocket::FWebSocketConnectedEvent& FConnection::OnConnected()
 {
     return OnConnectedEvent;
@@ -105,6 +110,14 @@ void FConnection::Negotiate()
 
 void FConnection::OnNegotiateResponse(FHttpRequestPtr InRequest, FHttpResponsePtr InResponse, bool bConnectedSuccessfully)
 {
+    if (!bConnectedSuccessfully)
+    {
+        UE_LOG(LogSignalR, Error, TEXT("Could not connect to host"))
+        OnConnectionFailedEvent.Broadcast();
+
+        return;
+    }
+
     if(InResponse->GetResponseCode() != 200)
     {
         UE_LOG(LogSignalR, Error, TEXT("Negotiate failed with status code %d"), InResponse->GetResponseCode());

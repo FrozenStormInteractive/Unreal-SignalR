@@ -40,6 +40,7 @@ FHubConnection::FHubConnection(const FString& InUrl, const TMap<FString, FString
     Connection = MakeShared<FConnection>(Host, InHeaders);
 
     Connection->OnConnected().AddRaw(this, &FHubConnection::OnConnectionStarted);
+    Connection->OnConnectionFailed().AddRaw(this, &FHubConnection::OnConnectionFailed);
     Connection->OnMessage().AddRaw(this, &FHubConnection::ProcessMessage);
     Connection->OnConnectionError().AddRaw(this, &FHubConnection::OnConnectionError);
     Connection->OnClosed().AddRaw(this, &FHubConnection::OnConnectionClosed);
@@ -248,6 +249,13 @@ void FHubConnection::OnConnectionStarted()
     bHandshakeReceived = false;
 
     Connection->Send(FHandshakeProtocol::CreateHandshakeMessage(HubProtocol));
+}
+
+void FHubConnection::OnConnectionFailed()
+{
+    UE_LOG(LogSignalR, Verbose, TEXT("Connection to %s failed."), *Host)
+
+    OnHubConnectionErrorEvent.Broadcast(TEXT("Could not connect to host"));
 }
 
 void FHubConnection::OnConnectionError(const FString& InError)

@@ -99,6 +99,7 @@ private:
     EConnectionState ConnectionState;
 
     void OnConnectionStarted();
+    void OnConnectionFailed();
     void OnConnectionError(const FString& /* Error */);
     void OnConnectionClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
 
