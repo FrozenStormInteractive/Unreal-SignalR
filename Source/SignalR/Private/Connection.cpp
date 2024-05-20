@@ -104,6 +104,10 @@ void FConnection::Negotiate()
 
     HttpRequest->SetVerb(TEXT("POST"));
     HttpRequest->OnProcessRequestComplete().BindSP(AsShared(), &FConnection::OnNegotiateResponse);
+    for (TTuple<FString, FString> Header : Headers)
+    {
+        HttpRequest->SetHeader(Header.Key, Header.Value);
+    }
     HttpRequest->SetURL(Host + TEXT("/negotiate?negotiateVersion=1"));
     HttpRequest->ProcessRequest();
 }
