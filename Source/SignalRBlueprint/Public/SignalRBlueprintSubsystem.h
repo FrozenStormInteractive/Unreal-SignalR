@@ -41,7 +41,7 @@ public:
     virtual void Deinitialize() override;
     //~ End UEngineSubsystem Interface
 
-    UFUNCTION(BlueprintCallable, Meta = (AutoCreateRefTerm = "Headers"))
+    UFUNCTION(BlueprintCallable, Category = "SignalR", Meta = (AutoCreateRefTerm = "Headers"))
     USignalRHubConnectionWrapper* ConnectToHub(const FString& Url, const TMap<FString, FString>& Headers);
 
 private:
