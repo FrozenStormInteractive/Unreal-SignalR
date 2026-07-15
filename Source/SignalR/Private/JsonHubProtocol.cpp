@@ -23,6 +23,7 @@
  */
 
 #include "JsonHubProtocol.h"
+#include "Misc/EngineVersionComparison.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 #include "Misc/Base64.h"
@@ -214,7 +215,11 @@ FSignalRValue DeserializeValue(TSharedPtr<FJsonValue> InValue)
             TMap<FString, FSignalRValue> OutValues;
             for (const auto& Pair : InValue->AsObject()->Values)
             {
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 8)
+                OutValues.Add(*Pair.Key, DeserializeValue(Pair.Value));
+#else
                 OutValues.Add(Pair.Key, DeserializeValue(Pair.Value));
+#endif
             }
             return FSignalRValue(MoveTemp(OutValues));
         }

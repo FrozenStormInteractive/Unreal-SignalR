@@ -52,7 +52,7 @@ struct FSignalRInvokeResultWrapper : public FSignalRValueWrapper
 
     FSignalRInvokeResultWrapper() = default;
     FSignalRInvokeResultWrapper(const FSignalRInvokeResult& Value);
-    explicit FSignalRInvokeResultWrapper(const FSignalRInvokeResultWrapper& Other);
+    FSignalRInvokeResultWrapper(const FSignalRInvokeResultWrapper& Other);
     FSignalRInvokeResultWrapper(FSignalRInvokeResultWrapper&& Other) noexcept;
 
     FSignalRInvokeResultWrapper& operator=(FSignalRInvokeResultWrapper const& Other);
